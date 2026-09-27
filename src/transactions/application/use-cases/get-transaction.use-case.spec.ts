@@ -20,9 +20,8 @@ describe('GetTransactionUseCase', () => {
     delivery: { address: 'Calle 123', city: 'Bogota', region: 'Cundinamarca' },
   };
 
-  const mockRepository: Partial<TransactionRepositoryPort> = {
-    findDetailById: jest.fn().mockResolvedValue(mockDetail),
-  };
+  const findDetailById = jest.fn().mockResolvedValue(mockDetail);
+  const mockRepository: Partial<TransactionRepositoryPort> = { findDetailById };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -41,14 +40,12 @@ describe('GetTransactionUseCase', () => {
   });
 
   it('should return full transaction detail when found', async () => {
-    const result = await useCase.execute('tx-1');
-    expect(result).toEqual(mockDetail);
-    expect(mockRepository.findDetailById).toHaveBeenCalledWith('tx-1');
+    await expect(useCase.execute('tx-1')).resolves.toEqual(mockDetail);
+    expect(findDetailById).toHaveBeenCalledWith('tx-1');
   });
 
   it('should return null when not found', async () => {
-    (mockRepository.findDetailById as jest.Mock).mockResolvedValueOnce(null);
-    const result = await useCase.execute('non-existent');
-    expect(result).toBeNull();
+    findDetailById.mockResolvedValueOnce(null);
+    await expect(useCase.execute('non-existent')).resolves.toBeNull();
   });
 });

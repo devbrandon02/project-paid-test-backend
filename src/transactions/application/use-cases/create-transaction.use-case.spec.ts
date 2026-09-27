@@ -15,14 +15,29 @@ describe('CreateTransactionUseCase', () => {
   let useCase: CreateTransactionUseCase;
 
   const mockTransaction = new Transaction(
-    'tx-1', 'PENDING', 1000000, 200000, 500000,
-    'ref-123', null, 'prod-1', 'cust-1', 'del-1',
-    new Date(), new Date(),
+    'tx-1',
+    'PENDING',
+    1000000,
+    200000,
+    500000,
+    'ref-123',
+    null,
+    'prod-1',
+    'cust-1',
+    'del-1',
+    new Date(),
+    new Date(),
   );
 
   const mockProduct = new Product(
-    'prod-1', 'Product 1', 'Desc', 1000000, 5,
-    'http://img.com', new Date(), new Date(),
+    'prod-1',
+    'Product 1',
+    'Desc',
+    1000000,
+    5,
+    'http://img.com',
+    new Date(),
+    new Date(),
   );
 
   const mockTransactionRepository: TransactionRepositoryPort = {
@@ -44,7 +59,10 @@ describe('CreateTransactionUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateTransactionUseCase,
-        { provide: TRANSACTION_REPOSITORY, useValue: mockTransactionRepository },
+        {
+          provide: TRANSACTION_REPOSITORY,
+          useValue: mockTransactionRepository,
+        },
         { provide: PRODUCT_REPOSITORY, useValue: mockProductRepository },
       ],
     }).compile();

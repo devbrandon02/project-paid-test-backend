@@ -2,13 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProcessPaymentUseCase } from './process-payment.use-case';
 import {
   TRANSACTION_REPOSITORY,
-  TransactionRepositoryPort,
   TransactionWithCustomer,
 } from '../../domain/ports/transaction.repository.port';
-import {
-  PAYMENT_GATEWAY,
-  PaymentGatewayPort,
-} from '../../domain/ports/payment-gateway.port';
+import { PAYMENT_GATEWAY } from '../../domain/ports/payment-gateway.port';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { ok, err } from 'neverthrow';
 import { TransactionError } from '../../domain/errors/transaction.error';
@@ -35,9 +31,18 @@ describe('ProcessPaymentUseCase', () => {
   };
 
   const approvedTransaction = new Transaction(
-    'tx-1', 'APPROVED', 1000000, 200000, 500000,
-    'ref-123', 'wompi-001', 'prod-1', 'cust-1', 'del-1',
-    new Date(), new Date(),
+    'tx-1',
+    'APPROVED',
+    1000000,
+    200000,
+    500000,
+    'ref-123',
+    'wompi-001',
+    'prod-1',
+    'cust-1',
+    'del-1',
+    new Date(),
+    new Date(),
   );
 
   const mockTransactionRepository = {
@@ -49,7 +54,9 @@ describe('ProcessPaymentUseCase', () => {
   };
 
   const mockPaymentGateway = {
-    processPayment: jest.fn().mockResolvedValue(ok({ wompiId: 'wompi-001', status: 'APPROVED' })),
+    processPayment: jest
+      .fn()
+      .mockResolvedValue(ok({ wompiId: 'wompi-001', status: 'APPROVED' })),
   };
 
   beforeEach(async () => {
@@ -57,7 +64,10 @@ describe('ProcessPaymentUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProcessPaymentUseCase,
-        { provide: TRANSACTION_REPOSITORY, useValue: mockTransactionRepository },
+        {
+          provide: TRANSACTION_REPOSITORY,
+          useValue: mockTransactionRepository,
+        },
         { provide: PAYMENT_GATEWAY, useValue: mockPaymentGateway },
       ],
     }).compile();
@@ -118,7 +128,10 @@ describe('ProcessPaymentUseCase', () => {
     });
 
     expect(result.isErr()).toBe(true);
-    expect(mockTransactionRepository.updateStatus).toHaveBeenCalledWith('tx-1', 'ERROR');
+    expect(mockTransactionRepository.updateStatus).toHaveBeenCalledWith(
+      'tx-1',
+      'ERROR',
+    );
   });
 
   it('should process payment successfully and return APPROVED transaction', async () => {
@@ -143,8 +156,20 @@ describe('ProcessPaymentUseCase', () => {
       ok({ wompiId: 'wompi-002', status: 'DECLINED' }),
     );
     mockTransactionRepository.updateStatusAndWompiId.mockResolvedValueOnce(
-      new Transaction('tx-1', 'DECLINED', 1000000, 200000, 500000,
-        'ref-123', 'wompi-002', 'prod-1', 'cust-1', 'del-1', new Date(), new Date()),
+      new Transaction(
+        'tx-1',
+        'DECLINED',
+        1000000,
+        200000,
+        500000,
+        'ref-123',
+        'wompi-002',
+        'prod-1',
+        'cust-1',
+        'del-1',
+        new Date(),
+        new Date(),
+      ),
     );
 
     const result = await useCase.execute({
@@ -160,8 +185,8 @@ describe('ProcessPaymentUseCase', () => {
     if (result.isOk()) {
       expect(result.value.status).toBe('DECLINED');
     }
-    expect(mockTransactionRepository.updateStatusAndWompiId).toHaveBeenCalledWith(
-      'tx-1', 'DECLINED', 'wompi-002',
-    );
+    expect(
+      mockTransactionRepository.updateStatusAndWompiId,
+    ).toHaveBeenCalledWith('tx-1', 'DECLINED', 'wompi-002');
   });
 });

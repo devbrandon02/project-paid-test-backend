@@ -10,8 +10,6 @@ import { TransactionError } from './domain/errors/transaction.error';
 describe('TransactionsController', () => {
   let controller: TransactionsController;
   let createTransactionUseCase: CreateTransactionUseCase;
-  let processPaymentUseCase: ProcessPaymentUseCase;
-  let getTransactionUseCase: GetTransactionUseCase;
 
   const mockTransaction = {
     id: 'tx-1',
@@ -35,16 +33,25 @@ describe('TransactionsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionsController],
       providers: [
-        { provide: CreateTransactionUseCase, useValue: mockCreateUseCase },
-        { provide: ProcessPaymentUseCase, useValue: mockProcessPaymentUseCase },
-        { provide: GetTransactionUseCase, useValue: mockGetTransactionUseCase },
+        {
+          provide: CreateTransactionUseCase,
+          useValue: mockCreateUseCase,
+        },
+        {
+          provide: ProcessPaymentUseCase,
+          useValue: mockProcessPaymentUseCase,
+        },
+        {
+          provide: GetTransactionUseCase,
+          useValue: mockGetTransactionUseCase,
+        },
       ],
     }).compile();
 
     controller = module.get<TransactionsController>(TransactionsController);
-    createTransactionUseCase = module.get<CreateTransactionUseCase>(CreateTransactionUseCase);
-    processPaymentUseCase = module.get<ProcessPaymentUseCase>(ProcessPaymentUseCase);
-    getTransactionUseCase = module.get<GetTransactionUseCase>(GetTransactionUseCase);
+    createTransactionUseCase = module.get<CreateTransactionUseCase>(
+      CreateTransactionUseCase,
+    );
   });
 
   it('should be defined', () => {
@@ -104,8 +111,9 @@ describe('TransactionsController', () => {
         cardHolder: 'John Doe',
       };
 
-      const result = await controller.processPayment(dto);
-      expect(result.status).toBe('APPROVED');
+      await expect(controller.processPayment(dto)).resolves.toMatchObject({
+        status: 'APPROVED',
+      });
     });
 
     it('should throw HttpException on payment failure', async () => {
@@ -129,13 +137,16 @@ describe('TransactionsController', () => {
   describe('getTransaction', () => {
     it('should return transaction when found', async () => {
       mockGetTransactionUseCase.execute.mockResolvedValueOnce(mockTransaction);
-      const result = await controller.getTransaction('tx-1');
-      expect(result).toEqual(mockTransaction);
+      await expect(controller.getTransaction('tx-1')).resolves.toEqual(
+        mockTransaction,
+      );
     });
 
     it('should throw NotFoundException when not found', async () => {
       mockGetTransactionUseCase.execute.mockResolvedValueOnce(null);
-      await expect(controller.getTransaction('non-existent')).rejects.toThrow(NotFoundException);
+      await expect(controller.getTransaction('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
