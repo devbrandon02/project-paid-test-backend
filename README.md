@@ -47,6 +47,17 @@ npm run build
 npm run start:prod
 ```
 
+## Seguridad del API
+
+- Helmet añade cabeceras HTTP de seguridad, incluida la política HSTS para clientes HTTPS.
+- CORS sólo permite los orígenes de `CORS_ORIGINS`; configura aquí el origen del SPA desplegado.
+- `express-rate-limit` limita el API a 120 solicitudes por minuto y el endpoint de pago a 8 por minuto por IP.
+- `ValidationPipe` transforma DTO, elimina campos no declarados y rechaza propiedades adicionales.
+- Las respuestas de transacciones usan `Cache-Control: no-store`.
+- Los logs de pago no incluyen cuerpos/respuestas del proveedor ni mensajes de error que pudieran contener información sensible.
+- `TRUST_PROXY=1` sólo debe habilitarse si la aplicación está detrás de un proxy inverso de confianza que sobrescriba `X-Forwarded-For`.
+- En producción, publicar el API sólo tras HTTPS y almacenar secretos en el gestor de secretos del proveedor; nunca en el bundle del frontend.
+
 ## Modelo de datos
 
 Los precios, tarifas y montos se guardan como enteros en centavos COP. El número de tarjeta y el CVC no forman parte del modelo ni se persisten en PostgreSQL.
