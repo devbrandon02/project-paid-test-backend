@@ -55,7 +55,9 @@ describe('PrismaProductRepository', () => {
     const product = await repository.findById('1');
     expect(product).toBeDefined();
     expect(product?.name).toBe('Product 1');
-    expect(prisma.product.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(prisma.product.findUnique).toHaveBeenCalledWith({
+      where: { id: '1' },
+    });
   });
 
   it('should decrementStock via prisma', async () => {

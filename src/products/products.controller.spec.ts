@@ -45,7 +45,9 @@ describe('ProductsController', () => {
 
     controller = module.get<ProductsController>(ProductsController);
     getProductsUseCase = module.get<GetProductsUseCase>(GetProductsUseCase);
-    getProductByIdUseCase = module.get<GetProductByIdUseCase>(GetProductByIdUseCase);
+    getProductByIdUseCase = module.get<GetProductByIdUseCase>(
+      GetProductByIdUseCase,
+    );
   });
 
   it('should be defined', () => {
@@ -67,6 +69,8 @@ describe('ProductsController', () => {
 
   it('should throw NotFoundException when product is not found', async () => {
     mockGetProductByIdUseCase.execute.mockResolvedValueOnce(null);
-    await expect(controller.findOne('non-existent')).rejects.toThrow(NotFoundException);
+    await expect(controller.findOne('non-existent')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });
