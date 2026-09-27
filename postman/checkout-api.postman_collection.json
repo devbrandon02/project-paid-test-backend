@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "Store Checkout API",
+    "description": "Local/Sandbox requests for products and checkout transactions. Set baseUrl and productId before running the collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/products"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('returns product collection', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "const products = pm.response.json();",
+                  "if (products.length && !pm.collectionVariables.get('productId')) {",
+                  "  pm.collectionVariables.set('productId', products[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get product by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create pending transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"customerEmail\": \"ana@example.com\",\n  \"customerFullName\": \"Ana Garcia\",\n  \"customerPhoneNumber\": \"3001234567\",\n  \"deliveryAddress\": \"Calle 10 # 20-30\",\n  \"deliveryCity\": \"Bogota\",\n  \"deliveryRegion\": \"Cundinamarca\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/transactions"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('creates a pending transaction', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "  const transaction = pm.response.json();",
+                  "  pm.expect(transaction.status).to.eql('PENDING');",
+                  "  pm.expect(transaction.id).to.be.a('string');",
+                  "  pm.collectionVariables.set('transactionId', transaction.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Process Sandbox payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{transactionId}}\",\n  \"cardNumber\": \"4242424242424242\",\n  \"cvc\": \"123\",\n  \"expMonth\": 12,\n  \"expYear\": 28,\n  \"cardHolder\": \"ANA GARCIA\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/transactions/payment"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('returns a payment result', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "  pm.expect(pm.response.json()).to.have.property('status');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get transaction detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/transactions/{{transactionId}}"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "productId", "value": "" },
+    { "key": "transactionId", "value": "" }
+  ]
+}
