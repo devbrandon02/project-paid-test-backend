@@ -1,17 +1,25 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { GetProductsUseCase } from './application/use-cases/get-products.use-case';
+import { GetProductByIdUseCase } from './application/use-cases/get-product-by-id.use-case';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly getProductsUseCase: GetProductsUseCase,
+    private readonly getProductByIdUseCase: GetProductByIdUseCase,
+  ) {}
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll() {
+    return this.getProductsUseCase.execute();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const product = await this.getProductByIdUseCase.execute(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    return product;
   }
 }

@@ -1,14 +1,20 @@
-import { Controller, Post, Body, Get, Param, HttpException, HttpStatus } from '@nestjs/common';
-import { TransactionsService } from './transactions.service';
+import { Controller, Post, Body, Get, Param, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto, ProcessPaymentDto } from './dto/create-transaction.dto';
+import { CreateTransactionUseCase } from './application/use-cases/create-transaction.use-case';
+import { ProcessPaymentUseCase } from './application/use-cases/process-payment.use-case';
+import { GetTransactionUseCase } from './application/use-cases/get-transaction.use-case';
 
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly createTransactionUseCase: CreateTransactionUseCase,
+    private readonly processPaymentUseCase: ProcessPaymentUseCase,
+    private readonly getTransactionUseCase: GetTransactionUseCase,
+  ) {}
 
   @Post()
   async createTransaction(@Body() dto: CreateTransactionDto) {
-    const result = await this.transactionsService.createTransaction(dto);
+    const result = await this.createTransactionUseCase.execute(dto);
     if (result.isErr()) {
       throw new HttpException(result.error.message, HttpStatus.BAD_REQUEST);
     }
@@ -17,7 +23,7 @@ export class TransactionsController {
 
   @Post('payment')
   async processPayment(@Body() dto: ProcessPaymentDto) {
-    const result = await this.transactionsService.processPayment(dto);
+    const result = await this.processPaymentUseCase.execute(dto);
     if (result.isErr()) {
       throw new HttpException(result.error.message, HttpStatus.BAD_REQUEST);
     }
@@ -26,9 +32,9 @@ export class TransactionsController {
 
   @Get(':id')
   async getTransaction(@Param('id') id: string) {
-    const tx = await this.transactionsService.getTransaction(id);
+    const tx = await this.getTransactionUseCase.execute(id);
     if (!tx) {
-      throw new HttpException('Transaction not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Transaction not found');
     }
     return tx;
   }
