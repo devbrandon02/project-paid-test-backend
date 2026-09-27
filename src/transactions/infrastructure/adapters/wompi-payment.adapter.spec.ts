@@ -291,9 +291,6 @@ describe('SandboxPaymentAdapter', () => {
     expect(result.isOk()).toBe(true);
     if (result.isOk()) expect(result.value.status).toBe('PENDING');
     expect(mockedAxios.get.mock.calls).toHaveLength(4);
-    expectCalledWith(
-      warnSpy,
-      expect.stringContaining('Poll error on attempt 1'),
-    );
+    expectCalledWith(warnSpy, 'Poll failed on attempt 1');
   });
 });

@@ -1,57 +1,77 @@
-import { IsString, IsNotEmpty, IsEmail, IsNumber } from 'class-validator';
+import {
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateTransactionDto {
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  @MaxLength(36)
+  productId!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  customerEmail: string;
+  @MaxLength(254)
+  customerEmail!: string;
 
   @IsString()
   @IsNotEmpty()
-  customerFullName: string;
+  @MaxLength(120)
+  customerFullName!: string;
 
   @IsString()
   @IsNotEmpty()
-  customerPhoneNumber: string;
+  @Matches(/^\+?[\d\s()-]{7,20}$/)
+  customerPhoneNumber!: string;
 
   @IsString()
   @IsNotEmpty()
-  deliveryAddress: string;
+  @MaxLength(250)
+  deliveryAddress!: string;
 
   @IsString()
   @IsNotEmpty()
-  deliveryCity: string;
+  @MaxLength(100)
+  deliveryCity!: string;
 
   @IsString()
   @IsNotEmpty()
-  deliveryRegion: string;
+  @MaxLength(100)
+  deliveryRegion!: string;
 }
 
 export class ProcessPaymentDto {
   @IsString()
   @IsNotEmpty()
-  transactionId: string;
+  @MaxLength(36)
+  transactionId!: string;
+
+  @IsString()
+  @Matches(/^\d{13,19}$/)
+  cardNumber!: string;
+
+  @IsString()
+  @Matches(/^\d{3,4}$/)
+  cvc!: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  expMonth!: number;
+
+  @IsInt()
+  @Min(0)
+  @Max(99)
+  expYear!: number;
 
   @IsString()
   @IsNotEmpty()
-  cardNumber: string;
-
-  @IsString()
-  @IsNotEmpty()
-  cvc: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  expMonth: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  expYear: number;
-
-  @IsString()
-  @IsNotEmpty()
-  cardHolder: string;
+  @MaxLength(100)
+  cardHolder!: string;
 }
